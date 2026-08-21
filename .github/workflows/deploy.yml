@@ -1,0 +1,47 @@
+name: Deploy Weather UI
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Angular
+        run: npm run build
+
+      - name: 🐳 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🐳 Build Docker image
+        run: |
+          docker build \
+            -t sergiohscl/weather-ui:latest \
+            -t sergiohscl/weather-ui:${{ github.sha }} \
+            .
+
+      - name: 🚀 Push Docker image
+        run: |
+          docker push sergiohscl/weather-ui:latest
+          docker push sergiohscl/weather-ui:${{ github.sha }}
