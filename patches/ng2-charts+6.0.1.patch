@@ -1,0 +1,12 @@
+diff --git a/node_modules/ng2-charts/lib/ng-charts.provider.d.ts b/node_modules/ng2-charts/lib/ng-charts.provider.d.ts
+index 1a2ca00..e0bda45 100644
+--- a/node_modules/ng2-charts/lib/ng-charts.provider.d.ts
++++ b/node_modules/ng2-charts/lib/ng-charts.provider.d.ts
+@@ -1,6 +1,6 @@
+ import { InjectionToken } from '@angular/core';
+ import { ChartComponentLike, Defaults } from 'chart.js';
+-import { DeepPartial } from 'chart.js/dist/types/utils';
++type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
+ export declare const NG_CHARTS_CONFIGURATION: InjectionToken<NgChartsConfiguration>;
+ export type NgChartsConfiguration = {
+     /**

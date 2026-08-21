@@ -1,0 +1,82 @@
+<div
+  class="h-full w-full rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+>
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+
+    <div
+      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/20 text-xl"
+    >
+      🤖
+    </div>
+
+    <div>
+      <h3 class="font-semibold">
+        Weather Insight
+      </h3>
+
+      <p class="text-xs text-slate-500">
+        Inteligência climática
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Loading -->
+  @if (insightLoading) {
+    <div class="mt-6 flex items-center gap-3 text-slate-400">
+
+      <div
+        class="h-5 w-5 animate-spin rounded-full border-2 border-purple-400/30 border-t-purple-400"
+      ></div>
+
+      <p class="text-sm">
+        Buscando dados e preparando o insight climático...
+      </p>
+
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!insightLoading && insightError) {
+    <div
+      class="mt-6 rounded-2xl border border-red-400/20 bg-red-400/10 p-4"
+    >
+      <p class="text-sm leading-6 text-red-300">
+        {{ insightError }}
+      </p>
+    </div>
+  }
+
+  <!-- Insight -->
+  @if (!insightLoading && insight) {
+    <div class="mt-6">
+
+      <p class="leading-7 text-slate-300">
+        {{ insight.text }}
+      </p>
+
+      <div
+        class="mt-4 flex items-center gap-2 text-xs text-slate-500"
+      >
+        <span>
+          Gerado em
+        </span>
+
+        <span>
+          {{ insight.generated_at | date: "dd/MM/yyyy HH:mm" }}
+        </span>
+      </div>
+
+    </div>
+  }
+
+  <!-- Initial state -->
+  @if (!insightLoading && !insight && !insightError) {
+    <p class="mt-6 leading-7 text-slate-300">
+      Pesquise uma cidade para gerar uma análise climática
+      inteligente baseada nos dados meteorológicos atuais.
+    </p>
+  }
+
+</div>

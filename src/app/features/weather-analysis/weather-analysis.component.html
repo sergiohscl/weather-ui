@@ -1,0 +1,819 @@
+<div class="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+
+    <!-- ========================================================= -->
+    <!-- HEADER -->
+    <!-- ========================================================= -->
+
+    <div
+      class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <div>
+
+        <a
+          routerLink="/"
+          class="mb-4 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+        >
+          ← Voltar para dashboard
+        </a>
+
+        <h1 class="text-3xl font-bold tracking-tight">
+          Análise Climática
+        </h1>
+
+        @if (weather) {
+
+          <p class="mt-2 text-slate-400">
+            Histórico meteorológico de
+
+            <span class="font-semibold text-white">
+              {{ weather.city }}
+            </span>
+          </p>
+
+        } @else {
+
+          <p class="mt-2 text-slate-400">
+            Consulte o histórico e a evolução dos dados climáticos.
+          </p>
+
+        }
+
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- EXPORTAÇÕES -->
+      <!-- ========================================================= -->
+
+      @if (weather) {
+
+        <div class="flex flex-wrap gap-3">
+
+          <!-- CSV -->
+
+          <button
+            type="button"
+            (click)="exportCsv()"
+            [disabled]="exportingCsv || exportingXlsx"
+            class="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+
+            @if (exportingCsv) {
+
+              <span class="flex items-center gap-2">
+
+                <span
+                  class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"
+                ></span>
+
+                Exportando...
+
+              </span>
+
+            } @else {
+
+              Exportar CSV
+
+            }
+
+          </button>
+
+          <!-- XLSX -->
+
+          <button
+            type="button"
+            (click)="exportXlsx()"
+            [disabled]="exportingCsv || exportingXlsx"
+            class="rounded-xl bg-purple-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-purple-400 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+
+            @if (exportingXlsx) {
+
+              <span class="flex items-center gap-2">
+
+                <span
+                  class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"
+                ></span>
+
+                Exportando...
+
+              </span>
+
+            } @else {
+
+              Exportar Excel
+
+            }
+
+          </button>
+
+        </div>
+
+      }
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- LOADING -->
+    <!-- ========================================================= -->
+
+    @if (loading) {
+
+      <div
+        class="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur"
+      >
+
+        <div
+          class="flex items-center justify-center gap-3 text-slate-400"
+        >
+
+          <div
+            class="h-6 w-6 animate-spin rounded-full border-2 border-purple-400/30 border-t-purple-400"
+          ></div>
+
+          <span>
+            Carregando análise climática...
+          </span>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- ERROR -->
+    <!-- ========================================================= -->
+
+    @if (!loading && error) {
+
+      <div
+        class="rounded-3xl border border-red-400/20 bg-red-400/10 p-6"
+      >
+
+        <p class="text-sm leading-6 text-red-300">
+          {{ error }}
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================================================= -->
+
+    @if (!loading && weather) {
+
+      <!-- ======================================================= -->
+      <!-- CURRENT WEATHER -->
+      <!-- ======================================================= -->
+
+      <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <!-- Temperatura -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <p class="text-sm text-slate-500">
+            Temperatura atual
+          </p>
+
+          <p class="mt-3 text-3xl font-bold">
+            {{ weather.temperature | number: "1.0-1" }}°C
+          </p>
+
+          <p class="mt-2 text-xs text-slate-500">
+            Sensação:
+
+            {{ weather.raw.main.feels_like | number: "1.0-1" }}°C
+          </p>
+
+        </div>
+
+
+        <!-- Umidade -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <p class="text-sm text-slate-500">
+            Umidade
+          </p>
+
+          <p class="mt-3 text-3xl font-bold">
+            {{ weather.humidity | number: "1.0-1" }}%
+          </p>
+
+        </div>
+
+
+        <!-- Pressão -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <p class="text-sm text-slate-500">
+            Pressão
+          </p>
+
+          <p class="mt-3 text-3xl font-bold">
+            {{ weather.pressure | number: "1.0-1" }}
+          </p>
+
+          <p class="mt-2 text-xs text-slate-500">
+            hPa
+          </p>
+
+        </div>
+
+
+        <!-- Vento -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <p class="text-sm text-slate-500">
+            Vento
+          </p>
+
+          <p class="mt-3 text-3xl font-bold">
+            {{ weather.wind_speed | number: "1.0-1" }}
+          </p>
+
+          <p class="mt-2 text-xs text-slate-500">
+            m/s
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- CURRENT CONDITION -->
+      <!-- ======================================================= -->
+
+      <div
+        class="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+      >
+
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+
+          <div>
+
+            <p
+              class="text-xs uppercase tracking-wider text-slate-500"
+            >
+              Condição atual
+            </p>
+
+            <h2
+              class="mt-2 text-2xl font-semibold capitalize"
+            >
+              {{ weather.condition }}
+            </h2>
+
+          </div>
+
+          <div class="text-sm text-slate-400">
+
+            Última coleta
+
+            <span class="ml-1 text-white">
+              {{ formatDate(weather.created_at) }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- SUMMARY -->
+      <!-- ======================================================= -->
+
+      <div
+        class="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+      >
+
+        <div
+          class="flex flex-wrap items-center justify-between gap-4"
+        >
+
+          <div>
+
+            <h2 class="text-xl font-semibold">
+              Resumo
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+              Baseado nas {{ history.length }} coletas encontradas.
+            </p>
+
+          </div>
+
+          <div class="text-sm text-slate-400">
+
+            Período analisado:
+
+            @if (history.length > 0) {
+
+              <span class="text-white">
+                {{ formatDate(history[0].created_at) }}
+              </span>
+
+            }
+
+            @if (history.length > 1) {
+
+              <span class="mx-1">
+                →
+              </span>
+
+              <span class="text-white">
+                {{ formatDate(history[history.length - 1].created_at) }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+
+        <!-- Métricas -->
+
+        <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+          <!-- Máxima -->
+
+          <div class="rounded-2xl bg-white/5 p-4">
+
+            <p class="text-xs text-slate-500">
+              Temperatura máxima
+            </p>
+
+            <p class="mt-2 text-xl font-semibold">
+              {{ getMaxTemperature() | number: "1.0-1" }}°C
+            </p>
+
+          </div>
+
+
+          <!-- Mínima -->
+
+          <div class="rounded-2xl bg-white/5 p-4">
+
+            <p class="text-xs text-slate-500">
+              Temperatura mínima
+            </p>
+
+            <p class="mt-2 text-xl font-semibold">
+              {{ getMinTemperature() | number: "1.0-1" }}°C
+            </p>
+
+          </div>
+
+
+          <!-- Média -->
+
+          <div class="rounded-2xl bg-white/5 p-4">
+
+            <p class="text-xs text-slate-500">
+              Temperatura média
+            </p>
+
+            <p class="mt-2 text-xl font-semibold">
+              {{ getAverageTemperature() | number: "1.0-1" }}°C
+            </p>
+
+          </div>
+
+
+          <!-- Umidade -->
+
+          <div class="rounded-2xl bg-white/5 p-4">
+
+            <p class="text-xs text-slate-500">
+              Umidade média
+            </p>
+
+            <p class="mt-2 text-xl font-semibold">
+              {{ getAverageHumidity() | number: "1.0-1" }}%
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- CHARTS -->
+      <!-- ======================================================= -->
+
+      <div class="grid gap-6 lg:grid-cols-2">
+
+
+        <!-- ===================================================== -->
+        <!-- TEMPERATURA -->
+        <!-- ===================================================== -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <div class="mb-6">
+
+            <h2 class="font-semibold">
+              Temperatura
+            </h2>
+
+            <p class="mt-1 text-xs text-slate-500">
+              Evolução das temperaturas registradas
+            </p>
+
+          </div>
+
+          @if (history.length > 1) {
+
+            <div class="relative h-64 w-full">
+
+              <canvas
+                baseChart
+                [type]="'line'"
+                [data]="temperatureChartData"
+                [options]="chartOptions"
+              ></canvas>
+
+            </div>
+
+          } @else {
+
+            <div
+              class="flex h-64 items-center justify-center text-sm text-slate-500"
+            >
+              Dados insuficientes para gerar o gráfico.
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- UMIDADE -->
+        <!-- ===================================================== -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <div class="mb-6">
+
+            <h2 class="font-semibold">
+              Umidade
+            </h2>
+
+            <p class="mt-1 text-xs text-slate-500">
+              Evolução da umidade registrada
+            </p>
+
+          </div>
+
+          @if (history.length > 1) {
+
+            <div class="relative h-64 w-full">
+
+              <canvas
+                baseChart
+                [type]="'line'"
+                [data]="humidityChartData"
+                [options]="chartOptions"
+              ></canvas>
+
+            </div>
+
+          } @else {
+
+            <div
+              class="flex h-64 items-center justify-center text-sm text-slate-500"
+            >
+              Dados insuficientes para gerar o gráfico.
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- PRESSÃO -->
+        <!-- ===================================================== -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <div class="mb-6">
+
+            <h2 class="font-semibold">
+              Pressão atmosférica
+            </h2>
+
+            <p class="mt-1 text-xs text-slate-500">
+              Evolução da pressão registrada
+            </p>
+
+          </div>
+
+          @if (history.length > 1) {
+
+            <div class="relative h-64 w-full">
+
+              <canvas
+                baseChart
+                [type]="'line'"
+                [data]="pressureChartData"
+                [options]="chartOptions"
+              ></canvas>
+
+            </div>
+
+          } @else {
+
+            <div
+              class="flex h-64 items-center justify-center text-sm text-slate-500"
+            >
+              Dados insuficientes para gerar o gráfico.
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- VENTO -->
+        <!-- ===================================================== -->
+
+        <div
+          class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+        >
+
+          <div class="mb-6">
+
+            <h2 class="font-semibold">
+              Velocidade do vento
+            </h2>
+
+            <p class="mt-1 text-xs text-slate-500">
+              Evolução da velocidade do vento
+            </p>
+
+          </div>
+
+          @if (history.length > 1) {
+
+            <div class="relative h-64 w-full">
+
+              <canvas
+                baseChart
+                [type]="'line'"
+                [data]="windChartData"
+                [options]="chartOptions"
+              ></canvas>
+
+            </div>
+
+          } @else {
+
+            <div
+              class="flex h-64 items-center justify-center text-sm text-slate-500"
+            >
+              Dados insuficientes para gerar o gráfico.
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- HISTORY -->
+      <!-- ======================================================= -->
+
+      <div
+        class="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+      >
+
+        <div class="mb-6">
+
+          <h2 class="text-xl font-semibold">
+            Histórico
+          </h2>
+
+          <p class="mt-1 text-sm text-slate-500">
+            Registros utilizados na análise.
+          </p>
+
+        </div>
+
+
+        @if (history.length > 0) {
+
+          <div class="overflow-x-auto">
+
+            <table
+              class="w-full min-w-[700px] text-left text-sm"
+            >
+
+              <thead>
+
+                <tr
+                  class="border-b border-white/10 text-xs uppercase tracking-wider text-slate-500"
+                >
+
+                  <th class="px-4 py-4 font-medium">
+                    Data
+                  </th>
+
+                  <th class="px-4 py-4 font-medium">
+                    Temperatura
+                  </th>
+
+                  <th class="px-4 py-4 font-medium">
+                    Umidade
+                  </th>
+
+                  <th class="px-4 py-4 font-medium">
+                    Pressão
+                  </th>
+
+                  <th class="px-4 py-4 font-medium">
+                    Vento
+                  </th>
+
+                  <th class="px-4 py-4 font-medium">
+                    Condição
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                @for (
+                  item of paginatedHistory;
+                  track item.id
+                ) {
+
+                  <tr
+                    class="border-b border-white/5 transition hover:bg-white/5"
+                  >
+
+                    <td class="px-4 py-4 text-slate-400">
+                      {{ formatDate(item.created_at) }}
+                    </td>
+
+                    <td class="px-4 py-4 font-medium">
+                      {{ item.temperature | number: "1.0-1" }}°C
+                    </td>
+
+                    <td class="px-4 py-4 text-slate-300">
+                      {{ item.humidity | number: "1.0-1" }}%
+                    </td>
+
+                    <td class="px-4 py-4 text-slate-300">
+                      {{ item.pressure | number: "1.0-1" }} hPa
+                    </td>
+
+                    <td class="px-4 py-4 text-slate-300">
+                      {{ item.wind_speed | number: "1.0-1" }} m/s
+                    </td>
+
+                    <td
+                      class="px-4 py-4 capitalize text-slate-300"
+                    >
+                      {{ item.condition }}
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+          <!-- =================================================== -->
+          <!-- PAGINATION -->
+          <!-- =================================================== -->
+
+          @if (totalPages > 1) {
+
+            <div
+              class="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between"
+            >
+
+              <!-- Previous -->
+
+              <button
+                type="button"
+                (click)="previousPage()"
+                [disabled]="currentPage === 1"
+                class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+
+                <span>
+                  ←
+                </span>
+
+                <span>
+                  Anterior
+                </span>
+
+              </button>
+
+
+              <!-- Page -->
+
+              <div
+                class="text-center text-sm text-slate-500"
+              >
+
+                Página
+
+                <span class="font-semibold text-white">
+                  {{ currentPage }}
+                </span>
+
+                de
+
+                <span class="font-semibold text-white">
+                  {{ totalPages }}
+                </span>
+
+              </div>
+
+
+              <!-- Next -->
+
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-purple-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+
+                <span>
+                  Próxima
+                </span>
+
+                <span>
+                  →
+                </span>
+
+              </button>
+
+            </div>
+
+          }
+
+        } @else {
+
+          <div
+            class="py-10 text-center text-sm text-slate-500"
+          >
+            Nenhum histórico encontrado para esta cidade.
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  </div>
+</div>

@@ -1,0 +1,43 @@
+<section class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <p class="text-sm text-slate-400">
+      💧 Umidade
+    </p>
+
+    <p class="mt-3 text-2xl font-bold">
+      {{ weather.humidity }}%
+    </p>
+  </div>
+
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <p class="text-sm text-slate-400">
+      💨 Vento
+    </p>
+
+    <p class="mt-3 text-2xl font-bold">
+      {{ weather.wind_speed | number: "1.0-2" }} m/s
+    </p>
+  </div>
+
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <p class="text-sm text-slate-400">
+      🌡️ Pressão
+    </p>
+
+    <p class="mt-3 text-2xl font-bold">
+      {{ weather.pressure }} hPa
+    </p>
+  </div>
+
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <p class="text-sm text-slate-400">
+      🌡️ Sensação
+    </p>
+
+    <p class="mt-3 text-2xl font-bold">
+      {{ weather.raw.main.feels_like | number: "1.0-1" }}°
+    </p>
+  </div>
+
+</section>

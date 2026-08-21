@@ -1,0 +1,68 @@
+<div
+  class="relative min-h-[520px] w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-sky-500/30 via-blue-600/20 to-indigo-900/30 p-8 shadow-2xl"
+>
+  <div
+    class="absolute -right-20 -top-20 h-60 w-80 rounded-full bg-sky-400/20 blur-3xl"
+  ></div>
+
+  <div class="relative">
+
+    <div class="flex items-start justify-between gap-4">
+
+      <div class="min-w-0">
+
+        <p class="truncate text-sm text-sky-200">
+          {{ weather.city }}
+        </p>
+
+        <p class="mt-1 text-xs text-slate-300">
+          {{ weather.timestamp | date: "dd/MM/yyyy HH:mm" }}
+        </p>
+
+      </div>
+
+      @if (weather.raw.weather.length > 0) {
+        <img
+          [src]="
+            'https://openweathermap.org/img/wn/' +
+            weather.raw.weather[0].icon +
+            '@2x.png'
+          "
+          [alt]="weather.raw.weather[0].description"
+          class="h-20 w-20 shrink-0"
+        />
+      }
+
+    </div>
+
+    <div class="mt-8">
+
+      <span class="text-6xl font-bold tracking-tight sm:text-7xl">
+        {{ weather.temperature | number: "1.0-1" }}°
+      </span>
+
+      <p class="mt-2 text-xl capitalize text-sky-100">
+        {{ weather.condition }}
+      </p>
+
+      <p class="mt-1 text-sm text-slate-300">
+        Sensação térmica de
+        {{ weather.raw.main.feels_like | number: "1.0-1" }}°
+      </p>
+
+    </div>
+
+    <div class="mt-8">
+      <button
+        type="button"
+        (click)="goToAnalysis()"
+        class="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+      >
+        <span>📊</span>
+        Ver análise climática
+        <span>→</span>
+      </button>
+    </div>
+
+  </div>
+</div>
