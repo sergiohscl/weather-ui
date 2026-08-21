@@ -28,6 +28,22 @@ jobs:
       - name: 🏗️ Build Angular
         run: npm run build
 
+      - name: 🔍 Check Docker Hub secrets
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "❌ DOCKER_USERNAME está vazio ou não existe"
+            exit 1
+          else
+            echo "✅ DOCKER_USERNAME está configurado"
+          fi
+
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
+            echo "❌ DOCKER_PASSWORD está vazio ou não existe"
+            exit 1
+          else
+            echo "✅ DOCKER_PASSWORD está configurado"
+          fi
+        
       - name: 🐳 Login to Docker Hub
         uses: docker/login-action@v3
         with:
