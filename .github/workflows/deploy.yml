@@ -9,41 +9,27 @@ on:
 
 jobs:
   build-and-push:
-    name: Build and Push Docker Image
+    name: 🐳 Build and Push Docker Image
     runs-on: ubuntu-latest
 
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🏗️ Build Angular
-        run: npm run build
-
       - name: 🔍 Check Docker Hub secrets
         run: |
           if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
             echo "❌ DOCKER_USERNAME está vazio ou não existe"
             exit 1
-          else
-            echo "✅ DOCKER_USERNAME está configurado"
           fi
 
           if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
             echo "❌ DOCKER_PASSWORD está vazio ou não existe"
             exit 1
-          else
-            echo "✅ DOCKER_PASSWORD está configurado"
           fi
-        
+
+          echo "✅ Docker Hub secrets configurados"
+
       - name: 🐳 Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -61,3 +47,46 @@ jobs:
         run: |
           docker push sergiohscl/weather-ui:latest
           docker push sergiohscl/weather-ui:${{ github.sha }}
+
+  deploy:
+    name: 🚀 Deploy to Oracle Cloud
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: 🔐 Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          echo "${{ secrets.ORACLE_SSH_KEY }}" > ~/.ssh/oracle_key
+          chmod 600 ~/.ssh/oracle_key
+
+          ssh-keyscan -H "${{ secrets.ORACLE_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: 🚀 Deploy Weather UI
+        run: |
+          ssh \
+            -i ~/.ssh/oracle_key \
+            -o StrictHostKeyChecking=yes \
+            "${{ secrets.ORACLE_USERNAME }}@${{ secrets.ORACLE_HOST }}" << 'EOF'
+
+            set -e
+
+            cd ~/weather-ui
+
+            echo "📥 Baixando nova imagem..."
+            docker compose pull
+
+            echo "🔄 Atualizando container..."
+            docker compose up -d
+
+            echo "🧹 Removendo imagens antigas..."
+            docker image prune -f
+
+            echo "📊 Status do container:"
+            docker compose ps
+
+            echo "✅ Deploy concluído!"
+
+          EOF
